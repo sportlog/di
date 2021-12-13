@@ -1,22 +1,15 @@
 <?php
 
-/**
- * Sportlog (https://sportlog.at)
- *
- * @license MIT License
- */
 declare(strict_types = 1);
 
-namespace Sportlog\Test\TestCase\YaMVC\DI;
+namespace Sportlog\DI\Test\TestCase;
 
 use PHPUnit\Framework\TestCase;
-use Sportlog\Entities\Begleiter\Begleiter;
-use YaMVC\DI\Container;
-use InvalidArgumentException;
-use YaMVC\DI\Exception\NotFoundException;
-use YaMVC\DI\Exception\ContainerException;
+use Sportlog\DI\Container;
+use Sportlog\DI\Exception\NotFoundException;
+use Sportlog\DI\Exception\ContainerException;
 
-final class DITest extends TestCase {
+final class ContainerTest extends TestCase {
     public function testGetValidClass(): void {
         $b = new Dummy();
         

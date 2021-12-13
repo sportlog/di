@@ -30,7 +30,7 @@ declare(strict_types=1);
  * 
  */
 
-namespace YaMVC\DI;
+namespace Sportlog\DI;
 
 use Closure;
 use Exception;
@@ -39,8 +39,8 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionNamedType;
 use ReflectionParameter;
-use YaMVC\DI\Exception\ContainerException;
-use YaMVC\DI\Exception\NotFoundException;
+use Sportlog\DI\Exception\ContainerException;
+use Sportlog\DI\Exception\NotFoundException;
 
 /**
  * A simple PSR-11 dependency injection container.

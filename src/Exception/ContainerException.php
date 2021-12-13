@@ -8,7 +8,7 @@
 
 declare (strict_types = 1);
 
-namespace YaMVC\DI\Exception;
+namespace Sportlog\DI\Exception;
 
 use Exception;
 use Psr\Container\ContainerExceptionInterface;

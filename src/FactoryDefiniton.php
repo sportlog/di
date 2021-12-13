@@ -8,7 +8,7 @@
 
 declare (strict_types = 1);
 
-namespace YaMVC\DI;
+namespace Sportlog\DI;
 
 use Closure;
 
