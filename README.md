@@ -52,6 +52,10 @@ class Config {
 }
 
 $container = new Container();
-$container->set(FooInterface::class, fn(Config $config) => new Foo($config->getFooInit()), [Config::class]);
+$container->set(
+    FooInterface::class,
+    fn (Config $config) => new Foo($config->getFooInit()),
+    [Config::class]
+);
 $foo = $container->get(FooInterface::class);
 ```
