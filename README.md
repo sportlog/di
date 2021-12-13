@@ -1,14 +1,11 @@
-# FIT
-A PHP (>= PHP 8) decoder for FIT files created by Garmin devices.
-The result is a list of all messages decoded from the file. Each message
-is an instance of its underlying message class, so you can easily access
-any (native) fields using intellisense. (FIT SDK 21.60)
+# DI
+A simple PSR-11 dependency injection container.
 
 ## Install via Composer
-You can install sportlog/FIT using Composer.
+You can install sportlog/di using Composer. (coming soon)
 
 ``` bash
-$ composer require sportlog/fit
+$ composer require sportlog/di
 ```
 Minimum PHP version required is 8.
 
@@ -19,36 +16,42 @@ Minimum PHP version required is 8.
 
 require 'vendor/autoload.php';
 
-use Sportlog\FIT\Decoder;
-use Sportlog\FIT\Profile\Messages\SessionMessage;
-use Sportlog\FIT\Profile\Types\MesgNum;
+use Sportlog\DI\Container;
 
-$decoder = new Decoder();
-// Decoding the FIT file returns a set of messages
-$messageList = $decoder->read('yourfile.fit');
-
-echo "File type: " . $messageList->getFileType();
-
-// You can iterate over the message list, or like in this example,
-// iterate over the messages grouped by their message numbers.
-foreach ($messageList->getMessageNumbers() as $messageNumber) {
-   $messages = $messageList->getMessages($messageNumber);
-   echo sprintf('%s: %s', $messageNumber, count($messages));
+// Given this class and interface:
+interface FooInterface {
+    public function getFoo(): string;
 }
 
-// You can also grab specific messages
-$sessionMessages = $messageList->getMessages(MesgNum::SESSION);
+class Foo implements FooInterface {
+    public function __construct(private ?string $foo = 'foo') {
+    }
 
-// There should be one session message (add check!)
-/** @var SessionMessage $sessionMessage */
-$sessionMessage = $messageList[0];
-// get any native fields from the message; use intellisense
-echo "Total time (m): " . $lastRecordMessage->getTotalElapsedTime();
-echo "Total distance (m): " . $lastRecordMessage->getTotalDistance();
-echo "Total ascent (m): " . $lastRecordMessage->getTotalAscent();
+    public function getFoo(): string {
+        return $this->foo;
+    }
+}
+
+// 1) You can simply get the instance via class id
+$container = new Container();
+$foo = $container->get(Foo::class);
+
+// 2) When working with interfaces you must set
+// the class id which shall be created
+$container = new Container();
+$container->set(FooInterface::class, Foo::class);
+$foo = $container->get(FooInterface::class);
+
+
+// 3) You can also use a factory with an optional
+// set of dependencies if required.
+class Config {
+    public function getFooInit(): string {
+        return 'init-foo';
+    }
+}
+
+$container = new Container();
+$container->set(FooInterface::class, fn(Config $config) => new Foo($config->getFooInit()), [Config::class]);
+$foo = $container->get(FooInterface::class);
 ```
-
-## Limitations
-Currently not supported
-* Compressed time stamps
-* Components
