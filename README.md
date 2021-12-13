@@ -37,14 +37,16 @@ $container = new Container();
 $foo = $container->get(Foo::class);
 
 // 2) When working with interfaces you must set
-// the class id which shall be created
+// the class id which shall be created.
 $container = new Container();
 $container->set(FooInterface::class, Foo::class);
 $foo = $container->get(FooInterface::class);
 
 
 // 3) You can also use a factory with an optional
-// set of dependencies if required.
+// set of dependencies if required. Consider
+// you want to provide some initial value to the Foo-Instance
+// from a config for example:
 class Config {
     public function getFooInit(): string {
         return 'init-foo';
@@ -52,6 +54,7 @@ class Config {
 }
 
 $container = new Container();
+// The closure will be called when object is requested via get().
 $container->set(
     FooInterface::class,
     fn (Config $config) => new Foo($config->getFooInit()),
