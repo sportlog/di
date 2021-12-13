@@ -15,7 +15,7 @@ use Closure;
 /**
  * Undocumented class
  */
-class FactoryDefiniton {
+class FactoryDefinition {
     public function __construct(private Closure $factory, private array $deps = [])
     {
     }

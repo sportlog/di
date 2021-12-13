@@ -65,7 +65,7 @@ class Container implements ContainerInterface
      * Allows to provide type mappings for non instantiable types
      * and/or to provide factory functions.
      *
-     * @var (string|FactoryDefiniton)[]
+     * @var (string|FactoryDefinition)[]
      */
     private array $typeMapping = [];
 
@@ -103,7 +103,7 @@ class Container implements ContainerInterface
         try {
             $this->entriesBeingResolved[$id] = true;
 
-            if ($typeFactory instanceof FactoryDefiniton) {
+            if ($typeFactory instanceof FactoryDefinition) {
                 $value = $this->instantiateFromFactory($typeFactory);
             } else {
                 $value = $this->instantiate($id);
@@ -141,8 +141,8 @@ class Container implements ContainerInterface
      *
      * @param string $id
      * @param string|Closure $value
-     * @param array|null $deps Values to provide when instantating. This parameter
-     *    is only relevent when a class id (string) was passed.
+     * @param array|null $deps Optional values to provide to the Closure when calling it.
+     *                         This parameter is ignored if a string was passed for $id.
      * @throws ContainerException
      */
     public function set(string $id, string|Closure $value, ?array $deps = null): void
@@ -157,11 +157,11 @@ class Container implements ContainerInterface
         if (is_string($value)) {
             $this->typeMapping[$id] = $value;
         } else {
-            $this->typeMapping[$id] = new FactoryDefiniton($value, $deps ?? []);
+            $this->typeMapping[$id] = new FactoryDefinition($value, $deps ?? []);
         }
     }
 
-    private function instantiateFromFactory(FactoryDefiniton $typeFactory): object
+    private function instantiateFromFactory(FactoryDefinition $typeFactory): object
     {
         $args = array_map(fn (string $id) => $this->get($id), $typeFactory->getDependencies());
         return $typeFactory->getFactory()->call($this, ...$args);
