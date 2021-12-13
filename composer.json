@@ -1,0 +1,35 @@
+{
+  "name": "sportlog/fit",
+  "description": "A simple PSR-11 dependency injection container",
+  "type": "library",
+  "keywords": ["dependency injection", "di", "psr-11", "container"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Johannes Aberidis"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Sportlog\\DI\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Sportlog\\DI\\": "src/",
+      "Sportlog\\DI\\Test\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^0.12.64",
+    "phpunit/phpunit": "^9.5"
+  },
+  "require": {
+    "php": ">=8.0",
+    "psr/container": "^1.0"
+  },
+  "scripts": {
+    "test": "vendor/bin/phpunit --testsuite di",
+    "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon"
+  }
+}
