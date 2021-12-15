@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace Sportlog\DI;
 
+use ArgumentCountError;
 use Closure;
 use Exception;
 use Psr\Container\ContainerInterface;
@@ -62,8 +63,8 @@ class Container implements ContainerInterface
      */
     private array $entriesBeingResolved = [];
     /**
-     * Allows to provide type mappings for non instantiable types
-     * and/or to provide factory functions.
+     * Type mappings for non instantiable types
+     * or factory function.
      *
      * @var (string|FactoryDefinition)[]
      */
@@ -78,7 +79,7 @@ class Container implements ContainerInterface
      * @throws ContainerException Error while retrieving the entry.
      * @return mixed
      */
-    public function get($id): mixed
+    public function get(string $id): mixed
     {
         $typeFactory = null;
         // Check for typeMappinges; a type mapping is required for not instantiable
@@ -161,6 +162,13 @@ class Container implements ContainerInterface
         }
     }
 
+    /**
+     * Instantiates the type via the factory function.
+     *
+     * @param FactoryDefinition $typeFactory
+     * @throws ArgumentCountError Callable expects more arguments than the depencies supply.
+     * @return object
+     */
     private function instantiateFromFactory(FactoryDefinition $typeFactory): object
     {
         $args = array_map(fn (string $id) => $this->get($id), $typeFactory->getDependencies());
