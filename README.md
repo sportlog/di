@@ -2,7 +2,7 @@
 A simple PSR-11 dependency injection container.
 
 ## Install via Composer
-You can install sportlog/di using Composer. (coming soon)
+You can install sportlog/di using Composer.
 
 ``` bash
 $ composer require sportlog/di
