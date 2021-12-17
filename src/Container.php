@@ -190,7 +190,7 @@ class Container implements ContainerInterface
             throw new NotFoundException("No entry or class found for '{$id}'");
         }
         if (!$reflection->isInstantiable()) {
-            throw new ContainerException("Type '{$id}' is not instantiable. An instance of this type must be manually provided via DI::set().");
+            throw new ContainerException("Type '{$id}' is not instantiable. A type mapping or factory for this type must be manually provided via DI::set().");
         }
 
         $ctor = $reflection->getConstructor();
