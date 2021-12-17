@@ -7,27 +7,6 @@ declare(strict_types=1);
  *
  * @author Johannes Aberidis <jo@sportlog.at>
  * @license https://opensource.org/licenses/mit-license.php MIT License
- * 
- * Copyright (c) 2020-2021 Johannes Aberidis
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- * 
  */
 
 namespace Sportlog\DI;
@@ -127,11 +106,7 @@ class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
-        if (isset($this->resolvedEntries[$id])) {
-            return true;
-        }
-
-        return $this->getDefinition($id) !== false;
+        return isset($this->resolvedEntries[$id]) || $this->getDefinition($id) !== false;
     }
 
     /**
@@ -150,7 +125,7 @@ class Container implements ContainerInterface
         if (isset($this->resolvedEntries[$id])) {
             throw new ContainerException("Type '{$id}' is already resolved.");
         }
-   
+
         if (isset($this->typeMapping[$id])) {
             throw new ContainerException("Type '{$id}' is already registered.");
         }
@@ -174,9 +149,9 @@ class Container implements ContainerInterface
         $args = array_map(fn (string $depId) => $this->get($depId), $typeFactory->getDependencies());
         try {
             return $typeFactory->getFactory()->call($this, ...$args);
-        }
-        catch (ArgumentCountError $ace) {
-            throw new ContainerException("Error retrieving entry for '${id}'. Closure expects more arguments than the dependencies supply.", $ace);
+        } catch (ArgumentCountError $ace) {
+            throw new ContainerException("Error retrieving entry for '${id}'." .
+                " Closure expects more arguments than the dependencies supply.", $ace);
         }
     }
 
@@ -195,7 +170,8 @@ class Container implements ContainerInterface
             throw new NotFoundException("No entry or class found for '{$id}'");
         }
         if (!$reflection->isInstantiable()) {
-            throw new ContainerException("Type '{$id}' is not instantiable. A type mapping or factory for this type must be manually provided via DI::set().");
+            throw new ContainerException("Type '{$id}' is not instantiable." .
+                " A type mapping or factory for this type must be manually provided via DI::set().");
         }
 
         $ctor = $reflection->getConstructor();
@@ -243,8 +219,7 @@ class Container implements ContainerInterface
         }
 
         if ($parameter->isDefaultValueAvailable()) {
-            // The parameter is a built-in primitive type
-            return $parameter->getDefaultValue(); // Get default value of parameter
+            return $parameter->getDefaultValue();
         }
 
         throw new ContainerException("Cannot resolve parameter '{$parameter->name}'");
