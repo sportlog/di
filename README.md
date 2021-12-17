@@ -19,15 +19,19 @@ require 'vendor/autoload.php';
 use Sportlog\DI\Container;
 
 // Given this class and interface:
-interface FooInterface {
+interface FooInterface
+{
     public function getFoo(): string;
 }
 
-class Foo implements FooInterface {
-    public function __construct(private ?string $foo = 'foo') {
+class Foo implements FooInterface
+{
+    public function __construct(private ?string $foo = 'foo')
+    {
     }
 
-    public function getFoo(): string {
+    public function getFoo(): string
+    {
         return $this->foo;
     }
 }
@@ -35,30 +39,32 @@ class Foo implements FooInterface {
 // 1) You can simply get the instance via class id
 $container = new Container();
 $foo = $container->get(Foo::class);
+echo $foo->getFoo();    // outputs: "foo"
 
 // 2) When working with interfaces you must set
-// the class id which shall be created.
+// the class id which shall be created
 $container = new Container();
 $container->set(FooInterface::class, Foo::class);
 $foo = $container->get(FooInterface::class);
-
+echo $foo->getFoo();    // outputs: "foo"
 
 // 3) You can also use a factory with an optional
-// set of dependencies if required. Consider
-// you want to provide some initial value to the Foo-Instance
-// from a config for example:
-class Config {
-    public function getFooInit(): string {
+// set of dependencies if required.
+class Config
+{
+    public function getFooInit(): string
+    {
         return 'init-foo';
     }
 }
 
 $container = new Container();
-// The closure will be called when object is requested via get().
+// Instance of Config will be injected to the factory
 $container->set(
     FooInterface::class,
     fn (Config $config) => new Foo($config->getFooInit()),
     [Config::class]
 );
 $foo = $container->get(FooInterface::class);
+echo $foo->getFoo();    // outputs: "init-foo"
 ```
