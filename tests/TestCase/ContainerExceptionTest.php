@@ -106,9 +106,10 @@ final class ContainerExceptionTest extends TestCase
      * @return void
      */
     public function testGetClassFromFactoryWithTooFewArgsThrows(): void {
-        $this->expectException(ArgumentCountError::class);
-        $di = new Container();
+        $this->expectException(ContainerException::class);
+        $this->expectExceptionMessage("Error retrieving entry for 'Sportlog\DI\Test\TestCase\Models\Foo'. Closure expects more arguments than the dependencies supply.");
 
+        $di = new Container();
         $di->set(DummyInterface::class, Dummy::class);
         // As dependencies are not supplied this DI::get() wil throw
         // when type is requested.
