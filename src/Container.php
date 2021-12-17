@@ -82,8 +82,7 @@ class Container implements ContainerInterface
     public function get(string $id): mixed
     {
         $typeFactory = null;
-        // Check for typeMappinges; a type mapping is required for not instantiable
-        // types. There can be several type mappings for the same $id.
+        // Check for type mapping or factory function
         if (isset($this->typeMapping[$id])) {
             if (is_string($this->typeMapping[$id])) {
                 $id = $this->typeMapping[$id];
@@ -105,7 +104,7 @@ class Container implements ContainerInterface
             $this->entriesBeingResolved[$id] = true;
 
             if ($typeFactory instanceof FactoryDefinition) {
-                $value = $this->instantiateFromFactory($typeFactory);
+                $value = $this->instantiateFromFactory($id, $typeFactory);
             } else {
                 $value = $this->instantiate($id);
             }
@@ -151,6 +150,7 @@ class Container implements ContainerInterface
         if (isset($this->resolvedEntries[$id])) {
             throw new ContainerException("Type '{$id}' is already resolved.");
         }
+   
         if (isset($this->typeMapping[$id])) {
             throw new ContainerException("Type '{$id}' is already registered.");
         }
@@ -166,13 +166,18 @@ class Container implements ContainerInterface
      * Instantiates the type via the factory function.
      *
      * @param FactoryDefinition $typeFactory
-     * @throws ArgumentCountError Callable expects more arguments than the depencies supply.
+     * @throws ContainerException Closure expects more arguments than the dependencies supply.
      * @return object
      */
-    private function instantiateFromFactory(FactoryDefinition $typeFactory): object
+    private function instantiateFromFactory(string $id, FactoryDefinition $typeFactory): object
     {
-        $args = array_map(fn (string $id) => $this->get($id), $typeFactory->getDependencies());
-        return $typeFactory->getFactory()->call($this, ...$args);
+        $args = array_map(fn (string $depId) => $this->get($depId), $typeFactory->getDependencies());
+        try {
+            return $typeFactory->getFactory()->call($this, ...$args);
+        }
+        catch (ArgumentCountError $ace) {
+            throw new ContainerException("Error retrieving entry for '${id}'. Closure expects more arguments than the dependencies supply.", $ace);
+        }
     }
 
     /**
