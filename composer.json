@@ -1,5 +1,5 @@
 {
-  "name": "sportlog/fit",
+  "name": "sportlog/di",
   "description": "A simple PSR-11 dependency injection container",
   "type": "library",
   "keywords": ["dependency injection", "di", "psr-11", "container"],
