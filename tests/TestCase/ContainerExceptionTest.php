@@ -9,6 +9,10 @@ use PHPUnit\Framework\TestCase;
 use Sportlog\DI\Container;
 use Sportlog\DI\Exception\NotFoundException;
 use Sportlog\DI\Exception\ContainerException;
+use Sportlog\DI\Test\TestCase\Models\Dummy;
+use Sportlog\DI\Test\TestCase\Models\DummyInterface;
+use Sportlog\DI\Test\TestCase\Models\DummyRecursive;
+use Sportlog\DI\Test\TestCase\Models\Foo;
 
 final class ContainerExceptionTest extends TestCase
 {
@@ -95,12 +99,19 @@ final class ContainerExceptionTest extends TestCase
         $di->get(DummyRecursive::class);
     }
 
+    /**
+     * Too few arguments are supplied to the custom factory function.
+     * DI::get() must throw.
+     *
+     * @return void
+     */
     public function testGetClassFromFactoryWithTooFewArgsThrows(): void {
         $this->expectException(ArgumentCountError::class);
         $di = new Container();
 
         $di->set(DummyInterface::class, Dummy::class);
-        // As dependencies are not supplied this method must throw
+        // As dependencies are not supplied this DI::get() wil throw
+        // when type is requested.
         $di->set(Foo::class, fn (DummyInterface $dummy) => new Foo($dummy));
         
         $foo = $di->get(Foo::class);

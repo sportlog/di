@@ -6,6 +6,10 @@ namespace Sportlog\DI\Test\TestCase;
 
 use PHPUnit\Framework\TestCase;
 use Sportlog\DI\Container;
+use Sportlog\DI\Test\TestCase\Models\Dummy;
+use Sportlog\DI\Test\TestCase\Models\DummyInterface;
+use Sportlog\DI\Test\TestCase\Models\DummyUser;
+use Sportlog\DI\Test\TestCase\Models\Foo;
 
 final class ContainerTest extends TestCase {
     public function testGetValidClass(): void {
