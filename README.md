@@ -48,8 +48,8 @@ $container->set(FooInterface::class, Foo::class);
 $foo = $container->get(FooInterface::class);
 echo $foo->getFoo();    // outputs: "foo"
 
-// 3) You can also use a factory with an optional
-// set of dependencies if required.
+// 3) You can also use a factory. Parameters are
+// getting injected
 class Config
 {
     public function getFooInit(): string
@@ -62,8 +62,7 @@ $container = new Container();
 // Instance of Config will be injected to the factory
 $container->set(
     FooInterface::class,
-    fn (Config $config) => new Foo($config->getFooInit()),
-    [Config::class]
+    fn (Config $config) => new Foo($config->getFooInit())
 );
 $foo = $container->get(FooInterface::class);
 echo $foo->getFoo();    // outputs: "init-foo"

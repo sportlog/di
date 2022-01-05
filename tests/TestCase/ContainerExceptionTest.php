@@ -98,24 +98,4 @@ final class ContainerExceptionTest extends TestCase
         $di = new Container();
         $di->get(DummyRecursive::class);
     }
-
-    /**
-     * Too few arguments are supplied to the custom factory function.
-     * DI::get() must throw.
-     *
-     * @return void
-     */
-    public function testGetClassFromFactoryWithTooFewArgsThrows(): void {
-        $this->expectException(ContainerException::class);
-        $this->expectExceptionMessage("Error retrieving entry for 'Sportlog\DI\Test\TestCase\Models\Foo'. Closure expects more arguments than the dependencies supply.");
-
-        $di = new Container();
-        $di->set(DummyInterface::class, Dummy::class);
-        // As dependencies are not supplied this DI::get() wil throw
-        // when type is requested.
-        $di->set(Foo::class, fn (DummyInterface $dummy) => new Foo($dummy));
-        
-        $foo = $di->get(Foo::class);
-        $this->assertIsObject($foo);
-    }
 }

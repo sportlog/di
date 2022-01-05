@@ -11,16 +11,15 @@ declare(strict_types=1);
 
 namespace Sportlog\DI;
 
-use ArgumentCountError;
 use Closure;
 use Exception;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionFunction;
 use ReflectionNamedType;
 use ReflectionParameter;
-use Sportlog\DI\Exception\ContainerException;
-use Sportlog\DI\Exception\NotFoundException;
+use Sportlog\DI\Exception\{ContainerException, NotFoundException};
 
 /**
  * A simple PSR-11 dependency injection container.
@@ -45,7 +44,7 @@ class Container implements ContainerInterface
      * Type mappings for non instantiable types
      * or factory function.
      *
-     * @var (string|FactoryDefinition)[]
+     * @var (string|Closure)[]
      */
     private array $typeMapping = [];
 
@@ -82,8 +81,8 @@ class Container implements ContainerInterface
         try {
             $this->entriesBeingResolved[$id] = true;
 
-            if ($typeFactory instanceof FactoryDefinition) {
-                $value = $this->instantiateFromFactory($id, $typeFactory);
+            if ($typeFactory instanceof Closure) {
+                $value = $this->instantiateFromFactory($typeFactory);
             } else {
                 $value = $this->instantiate($id);
             }
@@ -106,6 +105,15 @@ class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
+        // Check for type mapping or factory function
+        if (isset($this->typeMapping[$id])) {
+            if (is_string($this->typeMapping[$id])) {
+                $id = $this->typeMapping[$id];
+            } else {
+                return true;
+            }
+        }
+
         return isset($this->resolvedEntries[$id]) || $this->getDefinition($id) !== false;
     }
 
@@ -116,11 +124,9 @@ class Container implements ContainerInterface
      *
      * @param string $id
      * @param string|Closure $value
-     * @param array|null $deps Optional values to provide to the Closure when calling it.
-     *                         This parameter is ignored if a string was passed for $id.
      * @throws ContainerException
      */
-    public function set(string $id, string|Closure $value, ?array $deps = null): void
+    public function set(string $id, string|Closure $value): void
     {
         if (isset($this->resolvedEntries[$id])) {
             throw new ContainerException("Type '{$id}' is already resolved.");
@@ -130,29 +136,21 @@ class Container implements ContainerInterface
             throw new ContainerException("Type '{$id}' is already registered.");
         }
 
-        if (is_string($value)) {
-            $this->typeMapping[$id] = $value;
-        } else {
-            $this->typeMapping[$id] = new FactoryDefinition($value, $deps ?? []);
-        }
+        $this->typeMapping[$id] = $value;
     }
 
     /**
      * Instantiates the type via the factory function.
      *
-     * @param FactoryDefinition $typeFactory
+     * @param Closure $factory
      * @throws ContainerException Closure expects more arguments than the dependencies supply.
-     * @return object
+     * @return mixed
      */
-    private function instantiateFromFactory(string $id, FactoryDefinition $typeFactory): object
+    private function instantiateFromFactory(Closure $factory): mixed
     {
-        $args = array_map(fn (string $depId) => $this->get($depId), $typeFactory->getDependencies());
-        try {
-            return $typeFactory->getFactory()->call($this, ...$args);
-        } catch (ArgumentCountError $ace) {
-            throw new ContainerException("Error retrieving entry for '${id}'." .
-                " Closure expects more arguments than the dependencies supply.", $ace);
-        }
+        $reflection = new ReflectionFunction($factory);
+        $args = array_map(fn (ReflectionParameter $parameter) => $this->resolveParameter($parameter), $reflection->getParameters());
+        return $factory->call($this, ...$args);
     }
 
     /**
