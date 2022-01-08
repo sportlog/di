@@ -42,6 +42,13 @@ final class ContainerTest extends TestCase {
         $this->assertIsObject($instance);
     }
 
+    public function testMappingFactoryString(): void {
+        $di = new Container();
+
+        $di->set('foo', fn ()  => 'some string');
+        $this->assertEquals('some string', $di->get('foo'));
+    }
+
     public function testMappingSameInstance(): void {
         $di = new Container();
         
