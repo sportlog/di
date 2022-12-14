@@ -177,8 +177,8 @@ class Container implements ContainerInterface
             return $reflection->newInstance();
         }
 
-        $resolvedParameters = array_map(fn ($parameter) => $this->resolveParameter($parameter), $ctor->getParameters());
-        return $reflection->newInstanceArgs($resolvedParameters);
+        $args = array_map(fn (ReflectionParameter $parameter) => $this->resolveParameter($parameter), $ctor->getParameters());
+        return $reflection->newInstanceArgs($args);
     }
 
     /**
