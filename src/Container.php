@@ -27,17 +27,23 @@ use Sportlog\DI\Exception\{ContainerException, NotFoundException};
 class Container implements ContainerInterface
 {
     /**
-     * Entries which have alread been resolved via get()
-     * or where an instance was provided via set().
+     * Entries which have alread been resolved  via get() or
+     * where an instance was provided via set().
+     * Array key is the class id.
      */
     private array $resolvedEntries = [];
     /**
      * Definitions for all resolved types from Reflection.
+     * Array key is the class id.
+     * 
+     * @var ReflectionClass[]
      */
     private array $definitions = [];
     /**
      * Entries which are currently being resovlved. Required
      * to detect recursive dependencies.
+     * 
+     * @var string[]
      */
     private array $entriesBeingResolved = [];
     /**
@@ -185,9 +191,9 @@ class Container implements ContainerInterface
      * Returns the type definition, or false if the type is not resolvable.
      *
      * @param string $id
-     * @return bool|ReflectionClass
+     * @return false|ReflectionClass
      */
-    private function getDefinition(string $id): bool|ReflectionClass
+    private function getDefinition(string $id): ReflectionClass|false
     {
         if (isset($this->definitions[$id])) {
             return $this->definitions[$id];
