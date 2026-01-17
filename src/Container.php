@@ -30,6 +30,8 @@ class Container implements ContainerInterface
      * Entries which have alread been resolved  via get() or
      * where an instance was provided via set().
      * Array key is the class id.
+     * 
+     * @var mixed[]
      */
     private array $resolvedEntries = [];
     /**
@@ -65,13 +67,15 @@ class Container implements ContainerInterface
      */
     public function get(string $id): mixed
     {
+        /** @var ?Closure $typeFactory */
         $typeFactory = null;
         // Check for type mapping or factory function
         if (isset($this->typeMapping[$id])) {
-            if (is_string($this->typeMapping[$id])) {
-                $id = $this->typeMapping[$id];
+            $mapping = $this->typeMapping[$id];
+            if (is_string($mapping)) {
+                $id = $mapping;
             } else {
-                $typeFactory = $this->typeMapping[$id];
+                $typeFactory = $mapping;
             }
         }
 
@@ -87,7 +91,7 @@ class Container implements ContainerInterface
         try {
             $this->entriesBeingResolved[$id] = true;
 
-            if ($typeFactory instanceof Closure) {
+            if ($typeFactory !== null) {
                 $value = $this->instantiateFromFactory($typeFactory);
             } else {
                 $value = $this->instantiate($id);
@@ -155,7 +159,7 @@ class Container implements ContainerInterface
     private function instantiateFromFactory(Closure $factory): mixed
     {
         $reflection = new ReflectionFunction($factory);
-        $args = array_map(fn (ReflectionParameter $parameter) => $this->resolveParameter($parameter), $reflection->getParameters());
+        $args = array_map(fn(ReflectionParameter $parameter) => $this->resolveParameter($parameter), $reflection->getParameters());
         return $factory->call($this, ...$args);
     }
 
@@ -183,7 +187,7 @@ class Container implements ContainerInterface
             return $reflection->newInstance();
         }
 
-        $args = array_map(fn (ReflectionParameter $parameter) => $this->resolveParameter($parameter), $ctor->getParameters());
+        $args = array_map(fn(ReflectionParameter $parameter) => $this->resolveParameter($parameter), $ctor->getParameters());
         return $reflection->newInstanceArgs($args);
     }
 
